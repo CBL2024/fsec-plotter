@@ -1,2 +1,0 @@
-[console_scripts]
-data_extractor = fsec_extractor.fsec_script:run

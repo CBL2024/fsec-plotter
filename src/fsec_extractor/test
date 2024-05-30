@@ -1,0 +1,8 @@
+    def flow_dialogue_window():
+        flow = StringVar()
+        flow_dialogue = Tk()
+        Label(flow_dialogue, text='Unusual method used. Please enter the flow rate:').grid(row=4)
+        Entry(flow_dialogue, textvariable=flow).grid(row=4, column=1)
+        def flow_submit():
+            flow_rate = float(flow_rate.get())
+        Button(flow_dialogue, text='Submit', command=flow_submit).grid(row=5, column=0)

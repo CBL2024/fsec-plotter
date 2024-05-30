@@ -1,0 +1,9 @@
+pyproject.toml
+src/fsec_extractor/__init__.py
+src/fsec_extractor/fsec_script.py
+src/fsec_extractor.egg-info/PKG-INFO
+src/fsec_extractor.egg-info/SOURCES.txt
+src/fsec_extractor.egg-info/dependency_links.txt
+src/fsec_extractor.egg-info/entry_points.txt
+src/fsec_extractor.egg-info/requires.txt
+src/fsec_extractor.egg-info/top_level.txt

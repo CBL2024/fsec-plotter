@@ -5,7 +5,7 @@ These are then joined into Pandas dataframes which are saved as .csvs for each a
 /// Protein and detergent (or any condition) names. ///
 The GUI provides entry fields for entering protein names.
 You do not have to enter anything here. If you don't, the graphs will be plotted based on vial number. 
-It's important to enter the protein names or detergents in the correct order, as run on the Shimadzu machine. 
+If you want the graph labels for sample/condition, it's important to enter the protein names or detergents in the correct order, as run on the Shimadzu machine. 
 e.g., if you were to only run samples in A1-A12 and G1-G12, only fill in the names in the first entry field and 7th entry field.
 
 /// Flow rate. ///

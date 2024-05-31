@@ -1,6 +1,8 @@
+//What does it do///
 The script takes a path inputted by the user and reads all the .txt files within the directory, 
-extracting the lines containing the relevant data. 
-These are then joined into Pandas dataframes which are saved as .csvs for each abs/fluorescnece measurement and used to create graphs in matplotlib. 
+extracting the lines containing the relevant data (i.e., retention time + intensity for each wavelength). 
+These are then joined into Pandas dataframes which are saved as .csvs for each measurement 
+Graphs are made in matplotlib assuming all columns in each row on the microtitre plate are plotted together. 
 
 /// Protein and detergent (or any condition) names. ///
 The GUI provides entry fields for entering protein names.

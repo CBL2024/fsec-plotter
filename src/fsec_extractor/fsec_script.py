@@ -33,7 +33,7 @@ def run():
                         'C:\LabSolutions\Data\Project1\Methods\GFP+TRYP\Microtitre plate autosampler\Fast 1 ml_min'):
                     flow_rate = 1.0
                 else:
-                    flow_rate = None
+                    flow_rate = 1.0
                 return flow_rate
 
             start_index = None
@@ -242,15 +242,13 @@ def run():
         master.config(bg=background_color)
         master.resizable(False, False)
 
-
         is_detergent_screen_tk = tk.BooleanVar()  # Checkbutton for detergent screen
-        Checkbutton(master, text='12 detergent screen ', variable=is_detergent_screen_tk, bg=background_color).grid(row=4, column=1,
+        Checkbutton(master, text='12 detergent screen ', variable=is_detergent_screen_tk, bg=background_color).grid(row=4, column=1, padx=10,
                                                                                                              sticky=W)
-
         path_tk = StringVar()  # Entry box for directory
-        Label(master, width=30, anchor="e", text='Path to folder containing .txt files:', fg="#ba4a00",
-              font=("sans",10,"bold"), bd=5, bg=background_color).grid(row=1)
-        Entry(master, textvariable=path_tk, bg='#fe7c7c', width = 30).grid(row=1, column=1)
+        Label(master, width=30, anchor="e", text='Path to folder containing .txt files:', fg="red",
+              font=("sans",8,"bold"), bd=5, bg=background_color).grid(row=1, padx=(10,20))
+        Entry(master, textvariable=path_tk, bg='#fe7c7c', width = 20).grid(row=1, column=1, padx=(0,10))
 
         a1 = StringVar()
         a2 = StringVar()
@@ -276,21 +274,21 @@ def run():
 
         alpha = [a1, a2, a3, a4, a5, a6, a7, a8]  # This creates the entry fields for the proteins
 
-        Label(master, font=("arial",8), width=40, anchor="w", text='(Optional) Names of proteins/constructs ', bd=5, bg=background_color).grid(
-            row=6)
-        Label(master, font=("arial",8), width=40, anchor="w", text='for each row (A-H):', bd=5, bg=background_color).grid(
-            row=7)
+        Label(master, font=("arial",8), width=20, anchor="w", text='(Optional) Names of constructs ', bd=5, bg=background_color).grid(
+            row=6,padx=(10,110))
+        Label(master, font=("arial",8), width=20, anchor="w", text='for each row (A-H):', bd=5, bg=background_color).grid(
+            row=7,padx=(10,100))
         for a, i in zip(alpha, range(len(alpha))):
-            Entry(master, width=15, textvariable=a, bg='white').grid(row=9+i, column=0)
+            Entry(master, borderwidth=2, relief="sunken", width=20, textvariable=a, bg='white').grid(row=9+i, column=0, padx=(10,100))
 
         delta = [d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12]  # Entry fields for detergents
 
-        Label(master,font=("arial",8), width=40, anchor="w", text="(Optional) Names of detergents", bg=background_color).grid(row=6,
-                                                                                                             column=1)
-        Label(master,font=("arial",8), width=40, anchor="w", text=" for each column (1-12):", bg=background_color).grid(row=7,
-                                                                                                             column=1)
+        Label(master,font=("arial",8), width=30, anchor="w", text="(Optional) Names of detergents", bg=background_color).grid(row=6,
+                                                                                                             column=1,padx=(10,10))
+        Label(master,font=("arial",8), width=30, anchor="w", text=" for each column (1-12):", bg=background_color).grid(row=7,
+                                                                                                             column=1,padx=(10,10))
         for d, i in zip(delta, range(len(delta))):
-            Entry(master, width=15, textvariable=d, bg='white').grid(row=9 + i, column=1)
+            Entry(master, borderwidth=2, relief="sunken",width=20, textvariable=d, bg='white').grid(row=9 + i, column=1, padx=(0,10))
 
         end_marker = {"UV_absorbance": "[LC Chromatogram(Detector A-Ch2)]",
                       "GFP_fluorescence": "[LC Chromatogram(Detector B-Ch2)]",
@@ -312,11 +310,11 @@ def run():
                               end_marker.get(e), detergents, f)
             master.destroy()
 
-        Button(master, text='Submit', command=submit).grid(row=40, column=0)
+        Button(master, text='Submit', font=("arial",10,"bold"),command=submit, width=10,
+               borderwidth=1).grid(row=40, column=0, pady=10, padx=(100,0))
 
         mainloop()
 
     extractor_gui()
-
 
 run()

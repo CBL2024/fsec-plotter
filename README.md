@@ -10,11 +10,5 @@ You do not have to enter anything here. If you don't, the graphs will be plotted
 If you want the graph labels for sample/condition, it's important to enter the protein names or detergents in the correct order, as run on the Shimadzu machine. 
 e.g., if you were to only run samples in A1-A12 and G1-G12, only fill in the names in the first entry field and 7th entry field.
 
-/// Flow rate. ///
-If you are using "standard" methods that we use for Trp/GFP then this isn't a problem since I've hard-coded these in. 
-However, the flow rate information is only obtainable from the name of the method file that was used.
-The script will assume that the flow rate is 1.0 if the method file name differs from a standard method.
-This will make the Retention Volume = Retention Time and if your flow rate was different from 1.0, it is incorrect.
-My thought on how to fix this is to completely reorder the methods in the Shimadzu PC so that they fall under specific folder names e.g., "1.5" OR "1.0" 
 
 

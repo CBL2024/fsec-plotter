@@ -71,12 +71,14 @@ def metadata_plot(metadata, out_path, measure_table, measure, xlims, ylims):
             # then joins it with " " separator.
             # Appends each label to list "labs"
             # This is used as the labels for the graph.
-        fig = measure_table.plot(kind='line', title=f"{k}_{measure}", x="Retention Volume (mL)",
-                           label=labs, ylabel='Intensity (mV)', y=v, color=colors)
+        fig = measure_table.plot(kind='line', title=k, x="Retention Volume (mL)",
+                           label=labs, ylabel=f"{measure} intensity (mV)", y=v, color=colors)
 
         print(xlims)
         if xlims != ('',''):
             fig.set_xlim(xlims)
+        else:
+            fig.set_xlim(4,18)
         if ylims != ('',''):
             fig.set_ylim(ylims)
 

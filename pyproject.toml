@@ -6,9 +6,9 @@ requires = [
 ]
 
 [project]
-name = "fsec_extractor"
-version = "1.0.0"
-description = "Data extractor for F-SEC data."
+name = "fsec-plotter"
+version = "0.0.2"
+description = "Data extractor and plotter for F-SEC data."
 readme = "README.md"
 keywords = [
     "",
@@ -26,8 +26,8 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
 ]
 dependencies = [
-"numpy", "pandas", "matplotlib", "tkinter", "BaselineRemoval", "tensorflow", "keras.preprocessing"
+"numpy", "pandas", "matplotlib", "BaselineRemoval", "mpld3"
 ]
 
 [project.scripts]
-"fsec_data_extractor" = "fsec_extractor.fsec_script:run"
+"fsec-plotter" = "fsec_extractor.main:main"

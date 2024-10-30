@@ -12,8 +12,8 @@ def main():
     # Extract data into dataframe
     params = extractor_gui()
 
-    print(params)
-    metadata = graph.excel_check(params['path'])  # Check for excel file.
+    metadata = graph.excel_check(params['path'])
+    print(metadata) # Check for excel file.
 
     # End markers delineate which lines data is on in the file.
     end_marker = {"[LC Chromatogram(Detector A-Ch1)]": "[LC Chromatogram(Detector A-Ch2)]",
@@ -30,12 +30,10 @@ def main():
                 if n == 1: # Graph uncondensed data.
                     if metadata:
                         graph.from_excel_plot(metadata=metadata, out_path=params['path'], measure=key, measure_table=data)
-                    elif params['detergents']:
+                    else:
                         letters_dict = graph.check_alphabet(data) # Create dictionary of all letters contained in table
                         graph.alphanum_plot(path=params['path'], letters_dict=letters_dict,
-                                            measure_table=data, measure=key,
-                                            detergents=params['detergents'],
-                                            names=params['names']) # Plot same letter together
+                                            measure_table=data, measure=key) # Plot same letter together
 
 
 

@@ -25,19 +25,17 @@ def excel_check(path):
         path - path to check for excel file.
     """
     # Checks for files ending with .xlsx
-    # If only 1 file, reads this into df.
     # Stores data in dictionary with key of first row in df.
-    metadata = {}
     files = [f for f in os.listdir(path) if f.endswith('.xlsx')]
     if len(files) == 1:
         file = files[0]
         df = pd.read_excel(os.path.join(path, file), 'Plate map')
+        metadata = {}
         for index, row in df.iterrows():
-            metadata[row[0].replace('0', '')] = [row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8],
-                                                 row[9], row[10]]
+            metadata[row[0].replace('0', '')] = list(row[1:])
         return metadata
     else:
-        print("Too many or no Excel files found.")
+        print("No Excel files found.")
         return None
 
 def check_alphabet(measure_table):
@@ -56,7 +54,7 @@ def check_alphabet(measure_table):
     new_letters = {k: v for k, v in letters.items() if v}
     return new_letters
 
-def alphanum_plot(path, letters_dict, measure_table, measure, detergents, names):
+def alphanum_plot(path, letters_dict, measure_table, measure):
     plt.close('all')
     try:
         letters_iterator = iter(letters_dict)

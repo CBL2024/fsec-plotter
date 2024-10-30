@@ -1,10 +1,8 @@
 # Plot graphs
 
 import os
-from string import ascii_uppercase
 import matplotlib.pyplot as plt
 import pandas as pd
-import numpy as np
 import mpld3
 
 def make_output_dir(name, path):

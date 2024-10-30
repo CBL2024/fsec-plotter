@@ -1,7 +1,5 @@
 import tkinter as tk
 from tkinter import *
-from extractor import *
-from graph import *
 
 def extractor_gui():
 

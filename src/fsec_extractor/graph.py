@@ -62,7 +62,7 @@ def alphanum_plot(path, letters_dict, measure_table, measure):
             key = next(letters_iterator)
             value = letters_dict[key]
             measure_table.plot(kind='line', x="Retention Volume (mL)", ylabel='Intensity (mV)',
-                               label=detergents, y=value)
+                               y=value)
             plt.savefig(f"{make_output_dir(measure, path)}//{value}.svg")
     except ValueError as e:
         print(e)
@@ -83,15 +83,31 @@ def from_excel_plot(metadata, out_path, measure_table, measure):
     same_vals_filtered = {k: v for k, v in vals_in_data.items() if v} # Remove keys with empty strings.
 
     for k,v in same_vals_filtered.items():
+        # v = list of dataframe columns to plot (e.g., ['A1', 'B2'])
+        # k = metadata key for the data to be plotted together, e.g., '8His tag'
 
-        plt.close('all')
-        cm = plt.get_cmap('inferno')
-        colors = [cm(i / len(v)) for i in range(len(v))] # Number of colors depends on length of plotted list
+        labs=[] # Initialise label variable
+
+        plt.close('all') # Close all plots to free memory
+
+        cm = plt.get_cmap('inferno') # Choose colormap 'inferno'
+        colors = [cm(i / len(v)) for i in range(len(v))] # Number of colors depends on len list to plot
+
+        for en in enumerate(v): # Extract elements from "v"
+            labs.append(" ".join(metadata[en[1]]))
+            # Returns all metadata info about each element in "v"
+            # then joins it with " " separator.
+            # Appends each label to list "labs"
+            # This is used as the labels for the graph.
 
         measure_table.plot(kind='line', title=f"{k}_{measure}", x="Retention Volume (mL)",
-                               ylabel='Intensity (mV)', y=v, color=colors)
+                           label=labs,
+                           ylabel='Intensity (mV)', y=v, color=colors)
+
         mpld3.save_html(plt.gcf(), f"{make_output_dir(name=measure,path=out_path)}//{k}.html")
+        # This saves the graphs in an interactive html format.
         plt.savefig(f"{make_output_dir(name=measure,path=out_path)}//{k}.svg")
+        # This saves the graphs as vector graphics.
 
 
 

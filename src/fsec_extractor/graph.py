@@ -38,38 +38,10 @@ def excel_check(path):
         print("No Excel files found.")
         return None
 
-def check_alphabet(measure_table):
-    # Check whether alphanumeric columns exist
-    ls = []
-    for c in ascii_uppercase[:8]:
-        temp = []
-        for i in range(12):
-            temp.append(c + str(i + 1))
-        ls.append(temp)
-    letters = {}
-    letter_count = 0
-    for c in ascii_uppercase[:8]:
-        letters[c] = list(filter(lambda x: x in measure_table.columns, ls[letter_count]))
-        letter_count = letter_count + 1
-    new_letters = {k: v for k, v in letters.items() if v}
-    return new_letters
-
-def alphanum_plot(path, letters_dict, measure_table, measure):
-    plt.close('all')
-    try:
-        letters_iterator = iter(letters_dict)
-        for i in range(len(letters_dict.items())):
-            key = next(letters_iterator)
-            value = letters_dict[key]
-            measure_table.plot(kind='line', x="Retention Volume (mL)", ylabel='Intensity (mV)',
-                               y=value)
-            plt.savefig(f"{make_output_dir(measure, path)}//{value}.svg")
-    except ValueError as e:
-        print(e)
-
-def from_excel_plot(metadata, out_path, measure_table, measure):
+def metadata_plot(metadata, out_path, measure_table, measure, xlims, ylims):
     grouped = {}
     vals_in_data = {}
+
     for key, values in metadata.items():
         for value in values:
             if value not in grouped:
@@ -99,15 +71,20 @@ def from_excel_plot(metadata, out_path, measure_table, measure):
             # then joins it with " " separator.
             # Appends each label to list "labs"
             # This is used as the labels for the graph.
+        fig = measure_table.plot(kind='line', title=f"{k}_{measure}", x="Retention Volume (mL)",
+                           label=labs, ylabel='Intensity (mV)', y=v, color=colors)
 
-        measure_table.plot(kind='line', title=f"{k}_{measure}", x="Retention Volume (mL)",
-                           label=labs,
-                           ylabel='Intensity (mV)', y=v, color=colors)
+        print(xlims)
+        if xlims != ('',''):
+            fig.set_xlim(xlims)
+        if ylims != ('',''):
+            fig.set_ylim(ylims)
 
         mpld3.save_html(plt.gcf(), f"{make_output_dir(name=measure,path=out_path)}//{k}.html")
         # This saves the graphs in an interactive html format.
         plt.savefig(f"{make_output_dir(name=measure,path=out_path)}//{k}.svg")
         # This saves the graphs as vector graphics.
+
 
 
 

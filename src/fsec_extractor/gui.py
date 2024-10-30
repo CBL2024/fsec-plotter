@@ -5,11 +5,10 @@ from graph import *
 
 def extractor_gui():
 
-        #if len(files) > 1:
-        #open_error_window("More than one excel file found.")
-
     """
     The GUI for the data extractor.
+    User inputs values and when called,
+    returns dictionary of inputted values with keys 'path', 'names', 'detergents'.
     """
 
     master = Tk()
@@ -71,15 +70,6 @@ def extractor_gui():
     def submit():
         """Stores variables after pressing submit button"""
 
-        names = []
-        for a in range(len(alpha)):
-            names.append(str(alpha[a].get()))
-        detergents_ls = []
-        for d in range(len(delta)):
-            detergents_ls.append(str(delta[d].get()))
-        detergents = (list(filter(lambda item: item != "", detergents_ls)))
-
-        extract(str(path=path_tk.get()), correction=int(correction_tk.get()))
         master.destroy()
 
     def plate_button():
@@ -93,6 +83,23 @@ def extractor_gui():
            borderwidth=1).grid(row=40, column=1, pady=10)
 
     mainloop()
+
+    # Store user-inputted values:
+    names = []
+    for a in range(len(alpha)):
+        names.append(str(alpha[a].get()))
+    detergents_ls = []
+    for d in range(len(delta)):
+        detergents_ls.append(str(delta[d].get()))
+    xlims = [xlim1_tk.get(),xlim2_tk.get()]
+
+    parameters = {
+        'path':str(path_tk.get()),
+        'names':names,
+        'detergents':detergents_ls,
+        'xlims':xlims
+    }
+    return parameters
 
 if __name__ == "__main__":
     extractor_gui()

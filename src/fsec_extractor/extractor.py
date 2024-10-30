@@ -6,45 +6,19 @@ import re
 from collections import defaultdict
 from BaselineRemoval import BaselineRemoval
 
-path = 'test_dataset'
-
-def extract(path, correction):
+def extract(inputs, start, end, condense):
     """
     Extracts data from measure absorbance
 
-    Args
-    path: filepath where .txt files are.
-    correction: binary value for whether baseline correction is preferred or not
+    --Args--
+    path: filepath where .txt files are
+    start: file start marker
+    end: file end marker
 
     """
 
-    end_marker = {"[LC Chromatogram(Detector A-Ch1)]": "[LC Chromatogram(Detector A-Ch2)]",
-                  "[LC Chromatogram(Detector A-Ch2)]": "[LC Chromatogram(Detector B-Ch1)]",
-                  "[LC Chromatogram(Detector B-Ch1)]": "[LC Chromatogram(Detector B-Ch2)]",
-                  "[LC Chromatogram(Detector B-Ch2)]": "[LC Chromatogram(Detector B-Ch3)]"}
-    # End markers deliniate which lines data is on in the file.
-
-
-# # Functions to extract metadata:
-
-    def wave(measure):  # Extract the wavelength(s) for each detector measurement, return the wavelength as a string.
-        with open(all_files[0], 'r') as file:
-            lines = file.readlines()
-            for n, line in enumerate(lines):
-                if measure in line:
-                    if 'Detector A' in measure:
-                        wavelength_line = n + 7
-                        wavelength = "Absorbance_" + lines[wavelength_line].split('\t')[1].strip()
-                    elif 'Detector B' in measure:
-                        excitation_line = n + 7
-                        emission_line = n + 8
-                        wavelength = "Fluorescence_at_" + "ex_" + lines[excitation_line].split('\t')[
-                            1].strip() + "_em_" + lines[emission_line].split('\t')[1].strip()
-
-        return (wavelength)
-
     def flow_rate(method):
-        ''' Extract the flow rate from method file and return it. '''
+        """ Extract the flow rate from method file and return it. """
         if "1.5 ML_MIN" in method:
             flow_rate = 1.5
         elif "1.5ml_min" in method:
@@ -73,87 +47,98 @@ def extract(path, correction):
 
 #######################################
 
-    all_files = glob.glob(os.path.join(path, "*.txt"))
+    all_files = glob.glob(os.path.join(inputs['path'], "*.txt"))
+    dfs = []
+    start_index = None
+    end_index = None
+    file_metadata = {}  # Store wavelength, method, and name for each file
 
-    for measure, end_marker in end_marker.keys, end_marker.values:
-        for condense in [12, 1]: # Repeat for "condensed" data or raw data.
+    for filename in all_files:
 
-            dfs = []
-            sample_name = None
+        try:
+            with open(filename, 'r') as file:
+                lines = file.readlines()
 
-            for filename in all_files:
-                try:
-                    with open(filename, 'r') as file:
-                        lines = file.readlines()
+            for i, line in enumerate(lines):
+                if 'R.Time (min)\tIntensity' in line:
+                    start_index = i + 1 # Find index of start marker
+                elif end in line:
+                    end_index = i # Find index of end marker
+                    break
+                elif 'Sample Name' in line:
+                    file_metadata['name'] = line.split('\t')[1].strip()  # Extract sample name
+                elif 'Method File' in line:
+                    file_metadata['method'] = line.split('\t')[1].strip()  # Extract method file
 
+                # Extract wavelength
+                elif start in line:
+                    if 'Detector A' in start:
+                        wavelength_line = i + 7
+                        file_metadata['wavelength'] = "absorbance-"+lines[wavelength_line].split('\t')[1].strip()
+                    elif 'Detector B' in start:
+                        excitation_line = i + 7
+                        emission_line = i + 8
+                        file_metadata['wavelength'] = (
+                        "excitation-"+lines[excitation_line].split('\t')[1].strip()+"nm"+
+                        "-emission-"+lines[emission_line].split('\t')[1].strip())+"nm"
 
-                    # Find the indices of the start and end markers
-                    for i, line in enumerate(lines):
-                        if 'R.Time (min)\tIntensity' in line:
-                            start_index = i + 1
-                        elif end_marker in line:
-                            end_index = i
-                            break
-                        elif 'Sample Name' in line:
-                            sample_name = line.split('\t')[1].strip()  # Extract Sample Name
-                        elif 'Method File' in line:
-                            method_file = line.split('\t')[1].strip()  # Extract method file
+            if start_index and end_index:
+                reduced_lines = lines[start_index:end_index:condense]
+                dfr = pd.read_csv(StringIO(''.join(reduced_lines)), sep='\t', engine='python', usecols=[0],
+                                      names=['Retention Volume (mL)'])
+                df = pd.read_csv(StringIO(''.join(reduced_lines)), sep='\t', engine='python', usecols=[1],
+                                 header=None)
+                # Rename the column to the Sample Name
+                df.rename(columns={df.columns[0]: file_metadata['name']}, inplace=True)
 
-                    if start_index and end_index:
-                        reduced_lines = lines[start_index:end_index:condense]
-                        dfr = pd.read_csv(StringIO(''.join(reduced_lines)), sep='\t', engine='python', usecols=[0],
-                                          names=['Retention Volume (mL)'])
-                        df = pd.read_csv(StringIO(''.join(reduced_lines)), sep='\t', engine='python', usecols=[1],
-                                         header=None)
-                        # Rename the column to the Sample Name
-                        df.rename(columns={df.columns[0]: sample_name}, inplace=True)
-
-                    else:
-                        print(f"Data not found in file {filename}")
-
-                except pd.errors.ParserError as e:
-                    print(f"Error in file {filename}: {e}")
-
-
-                # Multiply the first column by the Flow rate
-                if flow_rate(method_file) and 'Retention Volume (mL)' in dfr:
-                    dfr['Retention Volume (mL)'] = dfr['Retention Volume (mL)'] * flow_rate(method_file)
-                else:
-                    dfr['Retention Volume (mL)'] = dfr['Retention Volume (mL)'] * 1
-                    # do something else
-
-                dfs.append([dfr,df]) # A list of dataframes containing the individual file data.
-
-        combined_df = pd.concat(dfs, axis=1) # Combine the dfs list into a single dataframe on axis=1
-
-        # Rename columns with duplicate labels to make them unique
-        column_counts = defaultdict(int)
-        new_columns = []
-        for column_name in combined_df.columns:
-            if column_name in new_columns:
-                column_counts[column_name] += 1
-                new_name = f"{column_name}_{column_counts[column_name]}"
-                new_columns.append(new_name)
             else:
-                new_columns.append(column_name)
-        combined_df.columns = new_columns
+                print(f"Data not found in file {filename}")
 
-        # Order columns alphanumerically by sample name
-        def sort_key(column_name):
-            # Split the column name into non-digit and digit parts
-            parts = re.split(r'(\d+)', column_name)
-            return (parts[0], int(parts[1])) if len(parts) > 1 else (parts[0], 0)
-        combined_df = combined_df.reindex(sorted(combined_df.columns, key=sort_key), axis=1)
+        except pd.errors.ParserError as e:
+            print(f"Error in file {filename}: {e}")
 
-        # Make Retention Volume the first column
-        column_order = ['Retention Volume (mL)'] + [col for col in combined_df.columns if col != 'Retention Volume (mL)']
 
-        measure_table = combined_df[column_order]
-        if correction:
-            measure_table = correct_baselines(measure_table)
+        # Multiply the first column by the Flow rate
+        flow = flow_rate(file_metadata['method'])
+        if flow_rate(file_metadata['method']) and 'Retention Volume (mL)' in dfr:
+            dfr['Retention Volume (mL)'] = dfr['Retention Volume (mL)'] * flow
+        else:
+            dfr['Retention Volume (mL)'] = dfr['Retention Volume (mL)'] * 1
+            # do something else
 
-        # Save the combined DataFrame to a CSV file
-        if condense == 12:
-            measure_table.to_csv(os.path.join(path, f"{measure.split('(')[1].split(')')[0]}-{wave(measure)}.csv"), index=False)
+        dfs.append(df)       # A list of dataframes containing the individual file data.
 
-        return measure_table
+    dfs.append(dfr)
+
+    combined_df = pd.concat(dfs, axis=1) # Combine the dfs list into a single dataframe on axis=1
+
+    # Rename columns with duplicate labels to make them unique
+    column_counts = defaultdict(int)
+    new_columns = []
+    for column_name in combined_df.columns:
+        if column_name in new_columns:
+            column_counts[column_name] += 1
+            new_name = f"{column_name}_{column_counts[column_name]}"
+            new_columns.append(new_name)
+        else:
+            new_columns.append(column_name)
+    combined_df.columns = new_columns
+
+    # Order columns alphanumerically by sample name
+    def sort_key(column_name):
+        # Split the column name into non-digit and digit parts
+        parts = re.split(r'(\d+)', column_name)
+        return (parts[0], int(parts[1])) if len(parts) > 1 else (parts[0], 0)
+    combined_df = combined_df.reindex(sorted(combined_df.columns, key=sort_key), axis=1)
+
+    # Make Retention Volume the first column
+    column_order = ['Retention Volume (mL)'] + [col for col in combined_df.columns if col != 'Retention Volume (mL)']
+
+    measure_table = correct_baselines(combined_df[column_order])
+
+    # Save the combined DataFrame to a CSV file
+
+    measure_dict = {file_metadata['wavelength']: measure_table}
+
+    return measure_dict
+

@@ -36,53 +36,58 @@ def excel_check(path):
         print("No Excel files found.")
         return None
 
-def metadata_plot(metadata, out_path, measure_table, measure, xlims, ylims):
+def plot(metadata, out_path, measure_table, measure, xlims, ylims):
     grouped = {}
     vals_in_data = {}
 
-    for key, values in metadata.items():
-        for value in values:
-            if value not in grouped:
-                grouped[value] = []
-            # Append the original key to the list for this value
-            grouped[value].append(key)
+    if metadata:
+        for key, values in metadata.items():
+            for value in values:
+                if value not in grouped:
+                    grouped[value] = []
+                # Append the original key to the list for this value
+                grouped[value].append(key)
 
-    for key, values in grouped.items():
-        # Create list of only metadata values that correspond to columns in measure_table
-        vals_in_data[key] = list(set(values).intersection(list(measure_table)))
-    same_vals_filtered = {k: v for k, v in vals_in_data.items() if v} # Remove keys with empty strings.
+        for key, values in grouped.items():
+            # Create list of only metadata values that correspond to columns in measure_table
+            vals_in_data[key] = list(set(values).intersection(list(measure_table)))
+        same_vals_filtered = {k: v for k, v in vals_in_data.items() if v} # Remove keys with empty strings.
 
-    for k,v in same_vals_filtered.items():
-        # v = list of dataframe columns to plot (e.g., ['A1', 'B2'])
-        # k = metadata key for the data to be plotted together, e.g., '8His tag'
+        n_keys = len(same_vals_filtered)
 
-        labs=[] # Initialise label variable
+        for k,v in same_vals_filtered.items():
+            # v = list of dataframe columns to plot (e.g., ['A1', 'B2'])
+            # k = metadata key for the data to be plotted together, e.g., '8His tag'
+            plt.close('all') # Close all plots to free memory
 
-        plt.close('all') # Close all plots to free memory
+            labs=[] # Initialise label variable
+            for en in enumerate(v): # Extract elements from "v"
+                labs.append(" ".join(str(metadata[en[1]])))
+                # Returns all metadata info about each element in "v"
+                # then joins it with " " separator.
+                # Appends each label to list "labs"
+                # This is used as the labels for the graph.
 
-        cm = plt.get_cmap('inferno') # Choose colormap 'inferno'
-        colors = [cm(i / len(v)) for i in range(len(v))] # Number of colors depends on len list to plot
+            print(labs)
+            plt.plot(measure_table["Retention Volume (mL)"],measure_table[v],label=labs)
+            plt.ylabel("Intensity")
+            plt.xlabel("Retention Volume (mL)")
+            plt.savefig(f"{make_output_dir(name=measure,path=out_path)}//Plot_of_{k}.svg")
 
-        for en in enumerate(v): # Extract elements from "v"
-            labs.append(" ".join(metadata[en[1]]))
-            # Returns all metadata info about each element in "v"
-            # then joins it with " " separator.
-            # Appends each label to list "labs"
-            # This is used as the labels for the graph.
-        fig = measure_table.plot(kind='line', title=k, x="Retention Volume (mL)",
-                           label=labs, ylabel=f"{measure} intensity (mV)", y=v, color=colors)
+        #axs.title(k)
+        #axs.label(labs)
+        #axs.ylabel(f"{measure} intensity (mV)")
+        #axs.color(colors)
 
-        print(xlims)
-        if xlims != ('',''):
-            fig.set_xlim(xlims)
-        else:
-            fig.set_xlim(4,18)
-        if ylims != ('',''):
-            fig.set_ylim(ylims)
+        #if xlims != ('',''):
+        #    axs.set_xlim(xlims)
+        #else:
+        #    axs.set_xlim(4,18)
+        #if ylims != ('',''):
+        #    axs.set_ylim(ylims)
 
-        mpld3.save_html(plt.gcf(), f"{make_output_dir(name=measure,path=out_path)}//{k}.html")
+        #mpld3.save_html(plt.gcf(), f"{make_output_dir(name=measure,path=out_path)}//{k}.html")
         # This saves the graphs in an interactive html format.
-        plt.savefig(f"{make_output_dir(name=measure,path=out_path)}//{k}.svg")
         # This saves the graphs as vector graphics.
 
 

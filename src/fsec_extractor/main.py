@@ -34,15 +34,12 @@ def main():
                 if n == 12: # Save condensed raw data.
                    data.to_csv(os.path.join(params['path'], f"{start.split('(')[1].split(')')[0]}-{key}.csv"), index=False)
                 if n == 1: # Graph uncondensed data.
-                    if metadata:
-                        graph.metadata_plot(metadata=metadata,
+                    graph.plot(metadata=metadata,
                                             out_path=params['path'],
                                             measure=key,
                                             measure_table=data,
                                             xlims=params['xlims'],
                                             ylims=params['ylims'])
-                    #else:
-                        #graph.no_metadata_plot(out_path=params['path'], measure=key, measure_table=data)
 
     print("Extraction complete.")
     # Plot graphs

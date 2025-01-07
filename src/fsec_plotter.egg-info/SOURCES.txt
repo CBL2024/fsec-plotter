@@ -1,0 +1,13 @@
+README.md
+pyproject.toml
+src/fsec_extractor/__init__.py
+src/fsec_extractor/extractor.py
+src/fsec_extractor/graph.py
+src/fsec_extractor/gui.py
+src/fsec_extractor/main.py
+src/fsec_plotter.egg-info/PKG-INFO
+src/fsec_plotter.egg-info/SOURCES.txt
+src/fsec_plotter.egg-info/dependency_links.txt
+src/fsec_plotter.egg-info/entry_points.txt
+src/fsec_plotter.egg-info/requires.txt
+src/fsec_plotter.egg-info/top_level.txt
